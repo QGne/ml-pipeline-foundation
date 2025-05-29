@@ -2,8 +2,8 @@
 Simple ML pipeline foundation for future implementation
 
 
-
-#Current project structure 
+# Current project structure 
+```bash
 ml-pipeline-foundation/
 ├── .github/workflows/
 │   └── ci.yml              # GitHub Actions CI/CD pipeline
@@ -17,6 +17,7 @@ ml-pipeline-foundation/
 │   └── iris_simple.csv     # Sample dataset
 ├── requirements.txt        # Python dependencies
 └── README.md
+```
 
 ### Installation & Setup(MAC
 ```bash
