@@ -1,0 +1,71 @@
+name: ML Pipeline CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -e .
+    
+    - name: Run tests
+      run: pytest --cov=src -v
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -e .
+    
+    - name: Run ML pipeline
+      run: |
+        python -c "
+        from src.data_processor import DataProcessor
+        
+        processor = DataProcessor()
+        
+        # Load and process data
+        data = processor.load_data('data/iris_simple.csv')
+        clean_data = processor.clean_data(data)
+        X, y = processor.split_features_target(clean_data)
+        X_train, X_test, y_train, y_test = processor.prepare_data(X, y)
+        
+        # Train and evaluate
+        train_acc = processor.train_model(X_train, y_train)
+        test_acc = processor.evaluate_model(X_test, y_test)
+        
+        print(f'Training accuracy: {train_acc:.3f}')
+        print(f'Test accuracy: {test_acc:.3f}')
+        print('Pipeline completed successfully!')
+        
+        # Basic performance check
+        assert train_acc > 0.5, f'Training accuracy too low: {train_acc}'
+        "  
+       
