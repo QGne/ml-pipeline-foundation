@@ -31,7 +31,7 @@ source ml-env/bin/activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
-bash```
+```
 
 
 ### Complete Pipline Test
