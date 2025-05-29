@@ -17,3 +17,18 @@ ml-pipeline-foundation/
 │   └── iris_simple.csv     # Sample dataset
 ├── requirements.txt        # Python dependencies
 └── README.md
+
+### Installation & Setup(MAC
+```bash
+
+# 1. Clone the repository
+git clone https://github.com/QGne/ml-pipeline-foundation.git
+cd ml-pipline-foundation
+
+# 2. Create virtual environment
+python3 -m venv ml-env
+source ml-env/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
