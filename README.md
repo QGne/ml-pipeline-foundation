@@ -55,7 +55,7 @@ EOF
 
 python pipeline_test.py
 rm pipeline_test.py
-
+```
 
 ### Unit Tests
 ```bash
