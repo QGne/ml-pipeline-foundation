@@ -2,7 +2,7 @@
 Simple ML pipeline foundation for future implementation
 
 
-# Current project structure 
+### Current project structure 
 ```bash
 ml-pipeline-foundation/
 ├── .github/workflows/
