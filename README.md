@@ -73,7 +73,7 @@ curl http://localhost:5001/predict
 ### Unit Tests
 #### Run Core ML Tests
 ```bash
-pytest tests/ -v
+pytest tests/test_data_processor.py -v
 
 # Expected output:
 # ===== 5 passed in X.XXs =====
