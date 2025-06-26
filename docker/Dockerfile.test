@@ -1,0 +1,18 @@
+FROM python:3.10-slim
+
+# working dir
+WORKDIR /app
+
+# Copy req
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# code for testing
+COPY src/ ./src/
+COPY tests/ ./tests/
+COPY data/ ./data/
+
+# run tests
+CMD ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
