@@ -70,6 +70,30 @@ curl http://localhost:5001/predict
 ./docker/run-api.sh
 ```
 
+### Unit Tests
+#### Run Core ML Tests
+```bash
+pytest tests/ -v
+
+# Expected output:
+# ===== 5 passed in X.XXs =====
+```
+
+#### Run API Tests
+```bash
+
+# Test REST API endpoints
+pytest tests/test_api.py -v
+
+# Expected: 11 passed
+```
+#### Run All Tests
+```bash
+# Complete test suite
+pytest tests/ -v
+
+# Expected: 16 passed
+```
 
 # For previous CI/CL pipline
 
