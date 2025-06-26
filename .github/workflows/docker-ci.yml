@@ -1,0 +1,104 @@
+name: ML API CI/CD with Docker
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Run unit tests
+      run: |
+        pytest tests/test_data_processor.py -v
+    
+    - name: Run API tests
+      run: |
+        pytest tests/test_api.py -v
+
+  docker-test:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Build test Docker image
+      run: |
+        docker build -f docker/Dockerfile.test -t ml-api-tests:latest .
+    
+    - name: Run tests in Docker
+      run: |
+        docker run --rm ml-api-tests:latest
+    
+    - name: Build API Docker image
+      run: |
+        docker build -f docker/Dockerfile.api -t ml-api:latest .
+    
+    - name: Test API container starts
+      run: |
+        # Start API in background
+        docker run -d --name test-api -p 5000:5000 ml-api:latest
+        
+        # Wait for API to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:5000/health || exit 1
+        
+        # Cleanup
+        docker stop test-api
+        docker rm test-api
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: [test, docker-test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Run full ML pipeline integration test
+      run: |
+        python -c "
+        from src.data_processor import DataProcessor
+        
+        processor = DataProcessor()
+        data = processor.load_data('data/iris_simple.csv')
+        clean_data = processor.clean_data(data)
+        X, y = processor.split_features_target(clean_data)
+        X_train, X_test, y_train, y_test = processor.prepare_data(X, y)
+        
+        train_acc = processor.train_model(X_train, y_train)
+        test_acc = processor.evaluate_model(X_test, y_test)
+        
+        print(f'✅ ML Pipeline - Train: {train_acc:.3f}, Test: {test_acc:.3f}')
+        assert train_acc > 0.5, f'Training accuracy too low: {train_acc}'
+        print('🎉 Integration test completed successfully!')
+        "
