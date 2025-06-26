@@ -10,7 +10,7 @@ import os
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.api import app
+from src.api import app, model_trained, processor
 
 @pytest.fixture
 def client():
@@ -21,7 +21,14 @@ def client():
 
 class TestAPIEndpoints:
     """Test all API endpoints"""
+    def setup_method(self):
+        """Reset API state before each test"""
+        import src.api
+        src.api.model_trained = False
+        src.api.last_training_data = None
+        src.api.processor = src.api.DataProcessor()
     
+
     def test_health_check_get(self, client):
         """Test GET /health endpoint"""
         response = client.get('/health')
