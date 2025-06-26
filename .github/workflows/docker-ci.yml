@@ -55,7 +55,7 @@ jobs:
     - name: Test API container starts
       run: |
         # Start API in background
-        docker run -d --name test-api -p 5000:5000 ml-api:latest
+        docker run -d --name test-api -p 5001:5001 ml-api:latest
         
         # Wait for API to start
         sleep 10
