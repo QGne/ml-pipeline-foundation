@@ -2,6 +2,8 @@
 Simple ML pipeline foundation for future implementation
 
 
+# For previous CI/CL pipline
+
 ### Current project structure 
 ```bash
 ml-pipeline-foundation/
