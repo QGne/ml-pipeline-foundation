@@ -1,10 +1,79 @@
 # ml-pipeline-foundation
 Simple ML pipeline foundation for future implementation
 
+# For CI/CL pipline part II
+
+### Current project structure 
+
+```bash
+ml-pipeline-foundation/
+├── .github/workflows/
+│   ├── ci.yml               # Original workflow
+│   └── docker-ci.yml        # Docker workflow
+├── docker/
+│   ├── Dockerfile.api       # API server container
+│   ├── Dockerfile.test      # Test runner container
+│   ├── run-api.sh          # Shell script for API
+│   └── run-tests.sh        # Shell script for tests
+├── src/
+│   ├── __init__.py
+│   ├── data_processor.py    # Core ML functionality
+│   └── api.py              # REST API server
+├── tests/
+│   ├── __init__.py
+│   ├── test_data_processor.py  # ML pipeline tests
+│   └── test_api.py            # API endpoint tests
+├── data/
+│   └── iris_simple.csv
+├── requirements.txt         # Updated with Flask
+└── README.md
+```
+
+### Installation & Setup(MAC
+```bash
+# 1. Clone the repository
+git clone https://github.com/QGne/ml-pipeline-foundation.git
+cd ml-pipeline-foundation
+
+# 2. Create virtual environment
+python3 -m venv ml-env
+source ml-env/bin/activate
+
+# 3. Install dependencies (includes Flask for API)
+pip install -r requirements.txt
+```
+
+### Complete Pipline Test
+
+#### Test Locally (Before Docker)
+
+```bash
+# Run API server
+python -m src.api
+
+# In another terminal, test endpoints:
+curl http://localhost:5001/health
+curl -X POST http://localhost:5001/train \
+  -H "Content-Type: application/json" \
+  -d '{"data_path": "data/iris_simple.csv"}'
+curl http://localhost:5001/predict
+
+```
+
+#### Test with Docker
+
+```bash
+# Run tests in Docker
+./docker/run-tests.sh
+
+# Run API server in Docker
+./docker/run-api.sh
+```
+
 
 # For previous CI/CL pipline
 
-### Current project structure 
+### project structure 
 ```bash
 ml-pipeline-foundation/
 ├── .github/workflows/
@@ -35,7 +104,6 @@ source ml-env/bin/activate
 # 3. Install dependencies
 pip install -r requirements.txt
 ```
-
 
 ### Complete Pipline Test
 ```bash
