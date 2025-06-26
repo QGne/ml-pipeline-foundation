@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY data/ ./data/
 
-# Expose port 5000
-EXPOSE 5000
+# Expose port 5001
+EXPOSE 5001
 
 
 #  run the API server
