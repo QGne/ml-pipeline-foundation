@@ -60,6 +60,86 @@ curl http://localhost:5001/predict
 
 ```
 
+#### Shell Scripts for API Testings
+### Test POST endpoint (Training):
+```bash
+cat > test_post.sh << 'EOF'
+#!/bin/bash
+echo "🧪 Testing POST /train endpoint..."
+
+# Test training with valid data
+echo "Testing with valid data..."
+response=$(curl -s -X POST http://localhost:5001/train \
+  -H "Content-Type: application/json" \
+  -d '{"data_path": "data/iris_simple.csv"}')
+
+echo "Response: $response"
+
+# Check if training was successful
+if echo "$response" | grep -q "Model trained successfully"; then
+    echo "✅ POST /train test PASSED"
+else
+    echo "❌ POST /train test FAILED"
+fi
+EOF
+
+chmod +x test_post.sh
+./test_post.sh
+rm test_post.sh
+```
+
+### Test PUT endpoint (Model Configuration):
+```bash
+cat > test_put.sh << 'EOF'
+#!/bin/bash
+echo "🧪 Testing PUT /model endpoint..."
+
+# Test updating model configuration
+echo "Updating model configuration..."
+response=$(curl -s -X PUT http://localhost:5001/model \
+  -H "Content-Type: application/json" \
+  -d '{"n_estimators": 50, "random_state": 42}')
+
+echo "Response: $response"
+
+# Check if configuration was updated
+if echo "$response" | grep -q "Model configuration updated"; then
+    echo "✅ PUT /model test PASSED"
+else
+    echo "❌ PUT /model test FAILED"
+fi
+EOF
+
+chmod +x test_put.sh
+./test_put.sh
+rm test_put.sh
+```
+
+### Test DELETE endpoint (Model Reset):
+```bash
+cat > test_delete.sh << 'EOF'
+#!/bin/bash
+echo "🧪 Testing DELETE /model endpoint..."
+
+# Test resetting the model
+echo "Resetting model..."
+response=$(curl -s -X DELETE http://localhost:5001/model -w "HTTP_CODE:%{http_code}")
+
+echo "Response: $response"
+
+# Check if reset was successful (HTTP 204)
+if echo "$response" | grep -q "HTTP_CODE:204"; then
+    echo "✅ DELETE /model test PASSED"
+else
+    echo "❌ DELETE /model test FAILED"
+fi
+EOF
+
+chmod +x test_delete.sh
+./test_delete.sh
+rm test_delete.sh
+```
+
 #### Test with Docker
 
 ```bash
