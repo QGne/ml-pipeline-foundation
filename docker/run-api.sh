@@ -2,6 +2,9 @@
 
 echo "🚀 Starting ML REST API Server..."
 
+#Solving build issue by ensuring the project root location
+cd "$(dirname "$0")/.."
+
 # Build the API Docker image
 docker build -f docker/Dockerfile.api -t ml-api:latest .
 
