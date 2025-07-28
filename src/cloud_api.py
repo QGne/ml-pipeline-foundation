@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify, request
 import json
 import os
@@ -8,9 +9,18 @@ from src.cloud import DynamoDBClient, S3Client
 
 app = Flask(__name__)
 
-# Initialize cloud clients
-dynamodb = DynamoDBClient()
-s3 = S3Client()
+# Initialize cloud clients lazily
+dynamodb = None
+s3 = None
+
+def get_cloud_clients():
+    #Get or initialize cloud clients
+    global dynamodb, s3
+    if dynamodb is None:
+        dynamodb = DynamoDBClient()
+    if s3 is None:
+        s3 = S3Client()
+    return dynamodb, s3
 
 # In-memory cache for current model
 current_model = None
@@ -33,6 +43,9 @@ def health_check():
 @app.route('/models', methods=['GET'])
 def get_models():
     #Get models with optional query parameters
+    dynamodb, s3 = get_cloud_clients()
+def get_models():
+    #Get models with optional query parameters
     try:
         # Check for query parameters
         query_params = request.args.to_dict()
@@ -48,7 +61,6 @@ def get_models():
         # Check for incorrect parameters
         valid_params = ['model_type', 'accuracy_threshold', 'created_after', 'model_id']
         invalid_params = [p for p in query_params if p not in valid_params]
-        
         
         if invalid_params:
             return jsonify({
@@ -95,6 +107,7 @@ def get_models():
 def create_model():
     #Create and train a new model
     global current_model, current_model_id
+    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Parse request body
@@ -173,6 +186,7 @@ def create_model():
 def update_model(model_id):
     #Update existing model
     global current_model, current_model_id
+    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Check if model exists
@@ -245,6 +259,7 @@ def update_model(model_id):
 def delete_model(model_id):
     #Delete model from both DynamoDB and S3
     global current_model, current_model_id
+    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Check if model exists
@@ -284,6 +299,7 @@ def delete_model(model_id):
 def predict(model_id):
     #Make predictions using a specific model
     global current_model, current_model_id
+    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Load model if not current
@@ -310,7 +326,7 @@ def predict(model_id):
             current_model = processor
             current_model_id = model_id
         
-         # Make predictions on test data
+        # Make predictions on test data
         data_path = request.args.get('data_path', 'data/iris_simple.csv')
         data = current_model.load_data(data_path)
         clean_data = current_model.clean_data(data)
@@ -336,7 +352,7 @@ def predict(model_id):
 
 @app.errorhandler(404)
 def not_found(error):
-    # Handle 404 errors
+    #Handle 404 errors
     return jsonify({
         "error": "Endpoint not found",
         "available_endpoints": [
@@ -352,7 +368,7 @@ def not_found(error):
 
 @app.errorhandler(405)
 def method_not_allowed(error):
-    # Handle 405 errors
+    #Handle 405 errors
     return jsonify({
         "error": "Method not allowed for this endpoint"
     }), 405
