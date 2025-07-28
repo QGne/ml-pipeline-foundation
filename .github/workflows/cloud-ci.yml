@@ -66,10 +66,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     
     - name: Start Cloud Stack
       run: |
-        docker-compose up -d
+        docker compose up -d
         sleep 20  # Wait for services to be ready
     
     - name: Test API Health
@@ -86,4 +89,4 @@ jobs:
     - name: Clean up
       if: always()
       run: |
-        docker-compose down
+        docker compose down
