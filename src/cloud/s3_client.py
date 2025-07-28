@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 from typing import Dict, Optional, Any
+from decimal import Decimal
 from botocore.exceptions import ClientError
 
 
@@ -56,17 +57,24 @@ class S3Client:     #Handles S3 operations for ML model artifacts.
             self.s3.put_object(
                 Bucket=self.bucket_name,
                 Key=model_key,
-                Body=model_bytes,
-                Metadata=metadata or {}
+                Body=model_bytes
             )
             
             # Upload metadata as JSON
             if metadata:
                 metadata_key = f"models/{model_id}/metadata.json"
+                # Convert Decimal values to float for JSON serialization
+                json_metadata = {}
+                for key, value in metadata.items():
+                    if isinstance(value, Decimal):
+                        json_metadata[key] = float(value)
+                    else:
+                        json_metadata[key] = value
+                
                 self.s3.put_object(
                     Bucket=self.bucket_name,
                     Key=metadata_key,
-                    Body=json.dumps(metadata, indent=2),
+                    Body=json.dumps(json_metadata, indent=2),
                     ContentType='application/json'
                 )
             
@@ -139,10 +147,18 @@ class S3Client:     #Handles S3 operations for ML model artifacts.
                 updated_metadata = {**existing_metadata, **metadata}
                 metadata_key = f"models/{model_id}/metadata.json"
                 
+                # Convert Decimal values to float for JSON serialization
+                json_metadata = {}
+                for key, value in updated_metadata.items():
+                    if isinstance(value, Decimal):
+                        json_metadata[key] = float(value)
+                    else:
+                        json_metadata[key] = value
+                
                 self.s3.put_object(
                     Bucket=self.bucket_name,
                     Key=metadata_key,
-                    Body=json.dumps(updated_metadata, indent=2),
+                    Body=json.dumps(json_metadata, indent=2),
                     ContentType='application/json'
                 )
             
