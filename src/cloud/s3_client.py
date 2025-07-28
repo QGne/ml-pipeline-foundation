@@ -52,12 +52,11 @@ class S3Client:     #Handles S3 operations for ML model artifacts.
             model_key = f"models/{model_id}/model.pkl"
             model_bytes = pickle.dumps(model_object)
             
-            # Upload model
+            # Upload model removing the metadata in s3 object metadata
             self.s3.put_object(
                 Bucket=self.bucket_name,
                 Key=model_key,
-                Body=model_bytes,
-                Metadata=metadata or {}
+                Body=model_bytes
             )
             
             # Upload metadata as JSON
