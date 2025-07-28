@@ -3,7 +3,32 @@ import json
 import os
 from typing import Dict, Optional, List
 from datetime import datetime
+from decimal import Decimal
 from botocore.exceptions import ClientError
+
+
+def convert_floats_to_decimals(obj):
+    """Convert float values to Decimal types for DynamoDB compatibility."""
+    if isinstance(obj, dict):
+        return {k: convert_floats_to_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_floats_to_decimals(v) for v in obj]
+    elif isinstance(obj, float):
+        return Decimal(str(obj))
+    else:
+        return obj
+
+
+def convert_decimals_to_floats(obj):
+    """Convert Decimal values back to float for JSON serialization."""
+    if isinstance(obj, dict):
+        return {k: convert_decimals_to_floats(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_decimals_to_floats(v) for v in obj]
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    else:
+        return obj
 
 
 class DynamoDBClient:    
@@ -71,6 +96,9 @@ class DynamoDBClient:
                 **metadata
             }
             
+            # Convert float values to Decimal for DynamoDB compatibility
+            item = convert_floats_to_decimals(item)
+            
             self.table.put_item(Item=item)
             return item
             
@@ -81,7 +109,11 @@ class DynamoDBClient:
         # Get model by ID
         try:
             response = self.table.get_item(Key={'model_id': model_id})
-            return response.get('Item')
+            item = response.get('Item')
+            if item:
+                # Convert Decimal values back to float for JSON serialization
+                return convert_decimals_to_floats(item)
+            return item
         except ClientError as e:
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                 return None
@@ -103,6 +135,9 @@ class DynamoDBClient:
                     update_expr += f", {key} = :{key}"
                     expr_values[f":{key}"] = value
             
+            # Convert float values to Decimal for DynamoDB compatibility
+            expr_values = convert_floats_to_decimals(expr_values)
+            
             response = self.table.update_item(
                 Key={'model_id': model_id},
                 UpdateExpression=update_expr,
@@ -110,7 +145,8 @@ class DynamoDBClient:
                 ReturnValues='ALL_NEW'
             )
             
-            return response['Attributes']
+            # Convert Decimal values back to float for JSON serialization
+            return convert_decimals_to_floats(response['Attributes'])
             
         except ClientError as e:
             raise Exception(f"Failed to update model: {str(e)}")
@@ -132,7 +168,9 @@ class DynamoDBClient:
         #List all models
         try:
             response = self.table.scan(Limit=limit)
-            return response.get('Items', [])
+            items = response.get('Items', [])
+            # Convert Decimal values back to float for JSON serialization
+            return [convert_decimals_to_floats(item) for item in items]
         except ClientError as e:
             raise Exception(f"Failed to list models: {str(e)}")
     
@@ -145,9 +183,20 @@ class DynamoDBClient:
             # Apply filters
             filtered = items
             for key, value in kwargs.items():
-                filtered = [item for item in filtered if item.get(key) == value]
+                filtered = [item for item in filtered if self._compare_values(item.get(key), value)]
             
             return filtered
             
         except Exception as e:
             raise Exception(f"Failed to query models: {str(e)}")
+    
+    def _compare_values(self, item_value, filter_value):
+        """Compare values accounting for different data types (Decimal, float, etc.)"""
+        if item_value is None:
+            return False
+        
+        # Convert both values to strings for comparison to handle Decimal types
+        try:
+            return str(item_value) == str(filter_value)
+        except:
+            return item_value == filter_value
