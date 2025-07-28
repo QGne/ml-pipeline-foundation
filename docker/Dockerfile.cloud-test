@@ -28,5 +28,5 @@ RUN mkdir -p /app/test-results
 # set Python path
 ENV PYTHONPATH=/app
 
-# the default command
-CMD ["python", "-m", "pytest", "tests/test_cloud_api.py", "-v"]
+# sefault command - skip cloud tests if no LocalStack
+CMD ["python", "-m", "pytest", "tests/", "-v", "-k", "not cloud"]
