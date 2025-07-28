@@ -8,16 +8,16 @@ import sys
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-# Check if LocalStack is available
-LOCALSTACK_AVAILABLE = os.getenv('AWS_ENDPOINT_URL', '').startswith('http://localstack')
-
-# Only import cloud API if LocalStack is available
-if LOCALSTACK_AVAILABLE:
+# Import with proper error handling
+try:
     from src.cloud_api import app
     from src.cloud import DynamoDBClient, S3Client
-else:
-    # Skip all tests in this file if LocalStack is not available
-    pytest.skip("Skipping cloud tests - LocalStack not available", allow_module_level=True)
+except Exception as e:
+    # If running without LocalStack, skip these tests
+    if "Connection refused" in str(e) or "Could not connect" in str(e):
+        pytest.skip("Skipping cloud tests - LocalStack not available", allow_module_level=True)
+    else:
+        raise
 
 
 @pytest.fixture
@@ -95,11 +95,16 @@ class TestCloudAPIEndpoints:
         
         # Create test model first
         model_id = 'test_model_1'
-        client.post('/models', json={
+        response = client.post('/models', json={
             'model_id': model_id,
             'model_type': 'RandomForest',
             'data_path': 'data/iris_simple.csv'
         })
+        
+        # Check if creation succeeded
+        if response.status_code != 201:
+            # Print response for debugging
+            print(f"Creation failed: {response.status_code} - {response.data}")
         
         # Query with valid parameters
         response = client.get('/models?model_id=' + model_id)
@@ -126,7 +131,7 @@ class TestCloudAPIEndpoints:
         assert 'available_filters' in data
     
     def test_get_models_incorrect_parameters(self, client):
-        # Test GET /models with incorrect parameters
+        #Test GET /models with incorrect parameters
         response = client.get('/models?invalid_param=value&another_bad=test')
         assert response.status_code == 400
         data = json.loads(response.data)

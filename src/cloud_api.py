@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request
 import json
 import os
@@ -107,7 +106,6 @@ def get_models():
 def create_model():
     #Create and train a new model
     global current_model, current_model_id
-    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Parse request body
@@ -186,7 +184,6 @@ def create_model():
 def update_model(model_id):
     #Update existing model
     global current_model, current_model_id
-    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Check if model exists
@@ -259,7 +256,6 @@ def update_model(model_id):
 def delete_model(model_id):
     #Delete model from both DynamoDB and S3
     global current_model, current_model_id
-    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Check if model exists
@@ -299,7 +295,6 @@ def delete_model(model_id):
 def predict(model_id):
     #Make predictions using a specific model
     global current_model, current_model_id
-    dynamodb, s3 = get_cloud_clients()
     
     try:
         # Load model if not current
