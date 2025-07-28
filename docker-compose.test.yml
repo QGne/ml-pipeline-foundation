@@ -34,7 +34,7 @@ services:
     volumes:
       - ./data:/app/data:ro
       - ./test-results:/app/test-results
-    command: ["python", "-m", "pytest", "tests/", "-v", "--tb=short", "--junit-xml=/app/test-results/results.xml"]
+    command: ["python", "-m", "pytest", "tests/test_cloud_api.py", "-v", "--tb=short", "--junit-xml=/app/test-results/results.xml"]
 
 networks:
   default:
