@@ -3,6 +3,7 @@ import json
 import os
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from src.data_processor import DataProcessor
 from src.cloud import DynamoDBClient, S3Client
 
@@ -149,8 +150,8 @@ def create_model():
         # Prepare metadata
         metadata = {
             "model_type": data.get('model_type', 'RandomForest'),
-            "train_accuracy": float(train_accuracy),
-            "test_accuracy": float(test_accuracy),
+            "train_accuracy": Decimal(str(train_accuracy)),
+            "test_accuracy": Decimal(str(test_accuracy)),
             "training_samples": len(X_train),
             "test_samples": len(X_test),
             "features": list(X.columns),
@@ -223,8 +224,8 @@ def update_model(model_id):
             
             # Update metadata
             updates = {
-                "train_accuracy": float(train_accuracy),
-                "test_accuracy": float(test_accuracy),
+                "train_accuracy": Decimal(str(train_accuracy)),
+                "test_accuracy": Decimal(str(test_accuracy)),
                 "last_trained": datetime.utcnow().isoformat()
             }
             
