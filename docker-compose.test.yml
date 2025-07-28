@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=s3,dynamodb
+      - DEBUG=0
+      - DATA_DIR=/tmp/localstack/data
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cloud-test
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      localstack:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data:ro
+      - ./test-results:/app/test-results
+    command: ["python", "-m", "pytest", "tests/test_cloud_api.py", "-v", "--tb=short", "--junit-xml=/app/test-results/results.xml"]
+
+networks:
+  default:
+    name: ml-test-network

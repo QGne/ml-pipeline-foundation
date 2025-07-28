@@ -1,0 +1,32 @@
+
+# Cloud Test Runner Docker image
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+#Copy requirements
+COPY requirements.txt requirements-cloud.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-cloud.txt
+
+# Copy application and test code
+COPY src/ ./src/
+COPY tests/ ./tests/
+COPY data/ ./data/
+
+# Create test results directory
+RUN mkdir -p /app/test-results
+
+# set Python path
+ENV PYTHONPATH=/app
+
+# the default command
+CMD ["python", "-m", "pytest", "tests/test_cloud_api.py", "-v"]
