@@ -1,6 +1,44 @@
 # ml-pipeline-foundation
 Simple ML pipeline foundation for future implementation
 
+## Debug Mad Branch Testing
+
+This project now supports testing on the `debug_mad` branch. The following workflows have been updated to include the `debug_mad` branch:
+
+- **Cloud Integration CI/CD** (`.github/workflows/cloud-ci.yml`)
+- **ML Pipeline CI** (`.github/workflows/ci.yml`) 
+- **ML API CI/CD with Docker** (`.github/workflows/docker-ci.yml`)
+- **Debug Mad Branch Test** (`.github/workflows/debug-mad-test.yml`) - Specific workflow for debug_mad branch
+
+### Running Tests on debug_mad Branch
+
+#### Option 1: Automatic Triggers
+- Push to `debug_mad` branch
+- Create pull request targeting `debug_mad` branch
+- The workflows will automatically run
+
+#### Option 2: Manual Trigger
+1. Go to your GitHub repository
+2. Navigate to **Actions** tab
+3. Select **Debug Mad Branch Test** workflow
+4. Click **Run workflow**
+5. Choose the test type:
+   - `cloud-integration` - Run cloud integration tests
+   - `unit-tests` - Run unit tests only
+   - `api-tests` - Run API tests only
+   - `all` - Run all tests
+
+#### Option 3: Local Testing
+```bash
+# Run the cloud workflow test script locally
+./scripts/run_cloud_workflow.sh
+
+# Or run specific tests
+pytest tests/test_cloud_api.py -v  # Cloud integration tests
+pytest tests/test_data_processor.py -v  # Unit tests
+pytest tests/test_api.py -v  # API tests
+```
+
 # For CI/CL pipline part II
 
 ### Current project structure 

@@ -2,9 +2,9 @@ name: ML API CI/CD with Docker
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, debug_mad ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, debug_mad ]
   workflow_dispatch:
 
 jobs:
