@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-#Copy requirements
+# Copy requirements
 COPY requirements.txt requirements-cloud.txt ./
 
 # Install Python dependencies
@@ -28,5 +28,5 @@ RUN mkdir -p /app/test-results
 # set Python path
 ENV PYTHONPATH=/app
 
-# the default command
-CMD ["python", "-m", "pytest", "tests/test_cloud_api.py", "-v"]
+# default command - skip cloud tests if no LocalStack
+CMD ["python", "-m", "pytest", "tests/", "-v", "-k", "not cloud"]
