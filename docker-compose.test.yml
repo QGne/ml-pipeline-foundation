@@ -2,15 +2,17 @@ version: '3.8'
 
 services:
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.5.0
     environment:
       - SERVICES=s3,dynamodb
       - DEBUG=0
       - DATA_DIR=/tmp/localstack/data
       - AWS_DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - TMPDIR=/var/lib/localstack
+      - DISABLE_EVENTS=1
     volumes:
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/lib/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
