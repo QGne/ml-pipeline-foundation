@@ -10,17 +10,20 @@ class DynamoDBClient:
     def __init__(self, table_name: str = "ml-models"): # Initialize DynamoDB client
         self.table_name = table_name
         
-        # Configure the boto3 for LocalStack
-        self.dynamodb = boto3.resource(
-            'dynamodb',
-            endpoint_url=os.getenv('AWS_ENDPOINT_URL', 'http://localhost:4566'),
-            region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'),
-            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID', 'test'),
-            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY', 'test')
-        )
-        
-        self.table = None
-        self._ensure_table_exists()
+        try:
+            # Configure the boto3 for LocalStack
+            self.dynamodb = boto3.resource(
+                'dynamodb',
+                endpoint_url=os.getenv('AWS_ENDPOINT_URL', 'http://localhost:4566'),
+                region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'),
+                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID', 'test'),
+                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY', 'test')
+            )
+            
+            self.table = None
+            self._ensure_table_exists()
+        except Exception as e:
+            raise Exception(f"Failed to initialize DynamoDB client: {str(e)}")
     
     def _ensure_table_exists(self):
         try:

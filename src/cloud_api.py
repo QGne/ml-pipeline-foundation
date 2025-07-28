@@ -15,11 +15,15 @@ s3 = None
 def get_cloud_clients():
     #Get or initialize cloud clients
     global dynamodb, s3
-    if dynamodb is None:
-        dynamodb = DynamoDBClient()
-    if s3 is None:
-        s3 = S3Client()
-    return dynamodb, s3
+    try:
+        if dynamodb is None:
+            dynamodb = DynamoDBClient()
+        if s3 is None:
+            s3 = S3Client()
+        return dynamodb, s3
+    except Exception as e:
+        # If cloud clients can't be initialized, raise a more descriptive error
+        raise Exception(f"Failed to initialize cloud clients: {str(e)}")
 
 # In-memory cache for current model
 current_model = None
@@ -43,8 +47,6 @@ def health_check():
 def get_models():
     #Get models with optional query parameters
     dynamodb, s3 = get_cloud_clients()
-def get_models():
-    #Get models with optional query parameters
     try:
         # Check for query parameters
         query_params = request.args.to_dict()
@@ -108,6 +110,9 @@ def create_model():
     global current_model, current_model_id
     
     try:
+        # Get cloud clients
+        dynamodb, s3 = get_cloud_clients()
+
         # Parse request body
         data = request.json
         if not data:
@@ -186,6 +191,9 @@ def update_model(model_id):
     global current_model, current_model_id
     
     try:
+        #Get cloud clients
+        dynamodb, s3 = get_cloud_clients()
+
         # Check if model exists
         existing_model = dynamodb.get_model(model_id)
         if not existing_model:
@@ -258,6 +266,9 @@ def delete_model(model_id):
     global current_model, current_model_id
     
     try:
+        #Get cloud clients
+        dynamodb, s3 = get_cloud_clients()
+
         # Check if model exists
         existing_model = dynamodb.get_model(model_id)
         if not existing_model:
@@ -297,6 +308,9 @@ def predict(model_id):
     global current_model, current_model_id
     
     try:
+        #Get cloud clients
+        dynamodb, s3 = get_cloud_clients()
+        
         # Load model if not current
         if current_model_id != model_id:
             # Check if model exists in DynamoDB
