@@ -13,16 +13,19 @@ class S3Client:     #Handles S3 operations for ML model artifacts.
         #Initialize S3 client
         self.bucket_name = bucket_name
         
-        # Configure boto3 for LocalStack
-        self.s3 = boto3.client(
-            's3',
-            endpoint_url=os.getenv('AWS_ENDPOINT_URL', 'http://localhost:4566'),
-            region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'),
-            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID', 'test'),
-            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY', 'test')
-        )
-        
-        self._ensure_bucket_exists()
+        try:
+            # Configure boto3 for LocalStack
+            self.s3 = boto3.client(
+                's3',
+                endpoint_url=os.getenv('AWS_ENDPOINT_URL', 'http://localhost:4566'),
+                region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'),
+                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID', 'test'),
+                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY', 'test')
+            )
+            
+            self._ensure_bucket_exists()
+        except Exception as e:
+            raise Exception(f"Failed to initialize S3 client: {str(e)}")
     
     def _ensure_bucket_exists(self):
         #Create bucket if it doesn't exist
@@ -132,8 +135,7 @@ class S3Client:     #Handles S3 operations for ML model artifacts.
                 )
 
             
-            if metadata: # Merge with existing metadata
-                
+            if metadata: # Merge with existing metadata   
                 updated_metadata = {**existing_metadata, **metadata}
                 metadata_key = f"models/{model_id}/metadata.json"
                 
