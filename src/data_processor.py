@@ -30,7 +30,9 @@ class DataProcessor:
     def prepare_data(self, X, y, test_size=0.3):
         """Scale features and split data."""
         X_scaled = self.scaler.fit_transform(X)
-        return train_test_split(X_scaled, y, test_size=test_size, random_state=42)
+        # Convert back to DataFrame to preserve column names
+        X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns, index=X.index)
+        return train_test_split(X_scaled_df, y, test_size=test_size, random_state=42)
     
     def train_model(self, X_train, y_train):
         """Train a simple model."""
