@@ -33,12 +33,22 @@ current_model_id = None
 @app.route('/health', methods=['GET'])
 def health_check():
     #Health check endpoint
+    try:
+        # Try to get cloud clients to check connectivity
+        dynamodb, s3 = get_cloud_clients()
+        dynamodb_status = "connected"
+        s3_status = "connected"
+    except Exception as e:
+        # If cloud clients can't be initialized, mark as disconnected
+        dynamodb_status = "disconnected"
+        s3_status = "disconnected"
+    
     return jsonify({
         "status": "healthy",
         "message": "Cloud ML API is running",
         "services": {
-            "dynamodb": "connected",
-            "s3": "connected"
+            "dynamodb": dynamodb_status,
+            "s3": s3_status
         }
     }), 200
 
