@@ -9,8 +9,8 @@ Simple ML pipeline foundation for future implementation
 ```
 ml-pipeline-foundation/
 ├── .github/workflows/
-│   ├── cloud-ci.yml         # Cloud integration CI/CD (ENABLED)
-│   ├── docker-ci.yml        # Docker CI/CD (ENABLED)
+│   ├── cloud-ci.yml         # Cloud integration CI/CD 
+│   ├── docker-ci.yml        # Docker CI/CD
 │   └── ci.yml.disabled      # ML Pipeline CI (DISABLED)
 ├── docker/
 │   ├── Dockerfile.api       # API server container
@@ -45,11 +45,6 @@ ml-pipeline-foundation/
 ```
 
 ## Quick Start
-
-### Prerequisites
-- Docker and Docker Compose
-- Python 3.10
-- Git
 
 ### 1. Clone and Setup
 ```bash
