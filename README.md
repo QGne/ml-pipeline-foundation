@@ -2,7 +2,7 @@
 
 Simple ML pipeline foundation for future implementation
 
-# For CI/CL pipline part II
+# For CI/CL pipline part III
 
 ## Project Structure
 
