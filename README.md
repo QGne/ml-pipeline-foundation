@@ -195,24 +195,14 @@ GET /models/{model_id}/predict?data_path=data/iris_simple.csv
 - **Test Runner**: Automated test execution
 - Exits with proper status codes (0 for success, non-zero for failure)
 
-## 🔄 CI/CD Workflows
+## CI/CD Workflows
 
 ### Cloud Integration CI/CD (`cloud-ci.yml`)
 - Runs on push/PR to main/develop branches
 - Tests cloud integration with LocalStack
 - Validates API endpoints and data consistency
-- **Status**: ✅ ENABLED
 
-### Docker CI/CD (`docker-ci.yml`)
-- Tests Docker builds and container functionality
-- Validates API container startup and health checks
-- **Status**: ✅ ENABLED
-
-### ML Pipeline CI (`ci.yml`)
-- Basic ML pipeline testing
-- **Status**: ❌ DISABLED (renamed to `ci.yml.disabled`)
-
-## 📊 Data Flow
+## Data Flow
 
 ### Model Creation Flow
 1. **POST /models** receives JSON request
@@ -239,7 +229,7 @@ GET /models/{model_id}/predict?data_path=data/iris_simple.csv
 3. **S3** removes model artifacts
 4. **Response** confirms deletion
 
-## 🛠️ Development
+## Development
 
 ### Local Development Setup
 ```bash
